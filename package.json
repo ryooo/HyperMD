@@ -42,7 +42,7 @@
     "typescript": "^2.9.1"
   },
   "peerDependencies": {
-    "codemirror": "^5.37.0"
+    "codemirror": "^5.58.3"
   },
   "optionalDependencies": {
     "emojione": "^3.1.6",

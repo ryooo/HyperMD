@@ -19,34 +19,53 @@
 // If using RequireJS or bundler (eg. webpack), include `<script src="path/to/mermaid.min.js"></script>` manually,
 // before RequireJS or `dist/your_app.js`
 
-import * as CodeMirror from "codemirror"
-import { registerRenderer, CodeRenderer, getAddon as getFoldCode } from "../addon/fold-code"
-import { getAddon as getFold } from "../addon/fold"
+import * as CodeMirror from "codemirror";
+import {
+  registerRenderer,
+  CodeRenderer,
+  getAddon as getFoldCode,
+} from "../addon/fold-code";
+import { getAddon as getFold } from "../addon/fold";
 
 /** global mermaid */
-declare var mermaid: typeof import("mermaid").default
+declare var mermaid: typeof import("mermaid").default;
 
 export const MermaidRenderer: CodeRenderer = (code, info) => {
-  var id = "_mermaid_id_" + Math.round(1e9 * Math.random()).toString(36)
+  var id = "_mermaid_id_" + Math.round(1e9 * Math.random()).toString(36);
 
-  var el = document.createElement('div')
-  el.setAttribute('id', id)
-  el.setAttribute('class', 'hmd-fold-code-image hmd-fold-code-mermaid')
+  var el = document.createElement("div");
+  el.setAttribute("id", id);
+  el.setAttribute("class", "hmd-fold-code-image hmd-fold-code-mermaid");
 
-  mermaid.render(id, code, (svgCode, bindFunctions) => {
-    el.innerHTML = svgCode
-    el.removeAttribute('id')
-    bindFunctions(el)
-    info.changed()
-  });
+  try {
+    mermaid.parse(code);
+    mermaid.render(id, code, (svgCode, bindFunctions) => {
+      el.innerHTML = svgCode;
+      el.removeAttribute("id");
+      if (bindFunctions) {
+        bindFunctions(el);
+      }
+      if (info.changed) {
+        info.changed();
+      }
+    });
+  } catch (error) {
+    el.innerHTML = `<pre class="language-text">${error.str.toString()}</pre>`;
+    if (info.changed) {
+      info.changed();
+    }
+  }
 
-  return el
-}
+  return {
+    element: el,
+    asyncRenderer: null,
+  };
+};
 
 if (typeof mermaid === "object") {
   CodeMirror.defineOption("mermaid", null, (cm: CodeMirror.Editor) => {
-    getFoldCode(cm).clear("mermaid")
-    getFold(cm).startFold()
+    getFoldCode(cm).clear("mermaid");
+    getFold(cm).startFold();
   });
 
   registerRenderer({
@@ -54,7 +73,11 @@ if (typeof mermaid === "object") {
     pattern: /^mermaid$/i,
     renderer: MermaidRenderer,
     suggested: true,
-  })
+  });
 } else {
-  console.error("[HyperMD] PowerPack fold-code-with-mermaid loaded, but mermaid not found.")
+  if (window["VICKYMD_DEBUG"]) {
+    console.error(
+      "[HyperMD] PowerPack fold-code-with-mermaid loaded, but mermaid not found."
+    );
+  }
 }

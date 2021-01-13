@@ -8,10 +8,21 @@
       "dom"
     ],
     "declaration": true,
-    "outDir": "."
+    "outDir": ".",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "baseUrl": "src/powerpack/typings",
+    "paths": {
+      "flowchart.js": ["flowchart.d.ts"]
+    }
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts", "src/**/*.tsx"
   ],
   "exclude": [
     "node_modules"
